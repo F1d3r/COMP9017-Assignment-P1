@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 
+// This represents the track.
 struct sound_seg {
     //TODO
 };
