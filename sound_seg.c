@@ -61,17 +61,17 @@ int wav_load(const char* filename, int16_t** dest){
 
 
 // Given an unsigned integer with big endian, convert it to little endian form.
-uint16_t convert_to_little_16(uint16_t big){
+uint16_t convert_to_little_uint16(uint16_t big){
     // For 0xABCD, OR(0xCD00, 0x00AB)
     return ((big >> 8) | (big << 8));
 }
 
-int16_t convert_to_little_16(int16_t big){
+int16_t convert_to_little_int16(int16_t big){
     // For 0xABCD, OR(0xCD00, 0x00AB)
     return ((big >> 8) | (big << 8));
 }
 
-uint32_t convert_to_little_32(uint32_t big){
+uint32_t convert_to_little_uint32(uint32_t big){
     // For 0xABCDEFGH, OR(0xGH000000, 0x00EF0000, 0x0000CD00, 0x000000AB)
     return ((big & (0x000000FF)) << 24 | (big & (0x0000FF00)) << 8 | (big & (0x00FF0000)) >> 8 | (big & (0xFF000000)) >> 24);
 }
@@ -81,18 +81,18 @@ void wav_save(const char* fname, int16_t* src, size_t len){
     // Define a WAV header.
     WAVHeader myHeader;
     myHeader.chunkID = 0x52494646;
-    myHeader.chunkSize = convert_to_little_32(36 + len);
+    myHeader.chunkSize = convert_to_little_uint32(36 + len);
     myHeader.format = 0x57415645;
     myHeader.subChunk1ID = 0x666d7420;
-    myHeader.subChunk1Size = convert_to_little_32(16);
-    myHeader.audioFormat = convert_to_little_16(1);
-    myHeader.numChannels = convert_to_little_16(1);
-    myHeader.sampleRate = convert_to_little_32(8000);
-    myHeader.byteRate = convert_to_little_32(8000 * 1 * 16 / 8);
-    myHeader.blockAlign = convert_to_little_16(1 * 16 / 8);
-    myHeader.bitsPerSample = convert_to_little_16(16);
+    myHeader.subChunk1Size = convert_to_little_uint32(16);
+    myHeader.audioFormat = convert_to_little_uint16(1);
+    myHeader.numChannels = convert_to_little_uint16(1);
+    myHeader.sampleRate = convert_to_little_uint32(8000);
+    myHeader.byteRate = convert_to_little_uint32(8000 * 1 * 16 / 8);
+    myHeader.blockAlign = convert_to_little_uint16(1 * 16 / 8);
+    myHeader.bitsPerSample = convert_to_little_uint16(16);
     myHeader.subChunk2ID = 0x64617461;
-    myHeader.subChunk2Size = convert_to_little_32(len);
+    myHeader.subChunk2Size = convert_to_little_uint32(len);
 
     // Define the file.
     FILE *myWAV = fopen(fname, "wb");
