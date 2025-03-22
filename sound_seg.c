@@ -50,7 +50,7 @@ int wav_load(const char* filename, int16_t** dest){
     fread(&dataSize, sizeof(uint32_t), 1, myWAV);
     printf("The size of the data: %d\n", dataSize);
     *dest = malloc(dataSize);
-    fread(*dest, sizeof(uint16_t), dataSize*2, myWAV);
+    fread(*dest, sizeof(int16_t), dataSize*2, myWAV);
 
 
     fclose(myWAV);
@@ -62,6 +62,11 @@ int wav_load(const char* filename, int16_t** dest){
 
 // Given an unsigned integer with big endian, convert it to little endian form.
 uint16_t convert_to_little_16(uint16_t big){
+    // For 0xABCD, OR(0xCD00, 0x00AB)
+    return ((big >> 8) | (big << 8));
+}
+
+int16_t convert_to_little_16(int16_t big){
     // For 0xABCD, OR(0xCD00, 0x00AB)
     return ((big >> 8) | (big << 8));
 }
@@ -97,7 +102,7 @@ void wav_save(const char* fname, int16_t* src, size_t len){
     // Then, write the data into the file.
     // There are |len| uint16_t to write.
     for(int i = 0; i < len; i++){
-
+        
     }
 
 
@@ -168,7 +173,11 @@ void tr_insert(struct sound_seg* src_track,
 // }
 
 
-void main(){
-    printf("%04X\n", convert_to_little_32(36));
+// void main(){
+    
+//     // char* fname = "test.wav";
+//     // uint16_t = 
 
-}
+//     // wav_save(const char* fname, int16_t* src, size_t len)
+
+// }
