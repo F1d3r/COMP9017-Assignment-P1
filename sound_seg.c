@@ -224,22 +224,22 @@ void tr_destroy(struct sound_seg* obj) {
 //     return;
 // }
 
-// // Delete a range of elements from the track
-// bool tr_delete_range(struct sound_seg* track, size_t pos, size_t len) {
-//     return true;
-// }
+// Delete a range of elements from the track
+bool tr_delete_range(struct sound_seg* track, size_t pos, size_t len) {
+    return true;
+}
 
-// // Returns a string containing <start>,<end> ad pairs in target
-// char* tr_identify(struct sound_seg* target, struct sound_seg* ad){
-//     return NULL;
-// }
+// Returns a string containing <start>,<end> ad pairs in target
+char* tr_identify(struct sound_seg* target, struct sound_seg* ad){
+    return NULL;
+}
 
-// // Insert a portion of src_track into dest_track at position destpos
-// void tr_insert(struct sound_seg* src_track,
-//             struct sound_seg* dest_track,
-//             size_t destpos, size_t srcpos, size_t len) {
-//     return;
-// }
+// Insert a portion of src_track into dest_track at position destpos
+void tr_insert(struct sound_seg* src_track,
+            struct sound_seg* dest_track,
+            size_t destpos, size_t srcpos, size_t len) {
+    return;
+}
 
 void main(){
 
