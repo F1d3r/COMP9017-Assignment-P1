@@ -50,7 +50,11 @@ int wav_load(const char* filename, int16_t** dest){
     fread(&dataSize, sizeof(uint32_t), 1, myWAV);
     printf("The size of the data: %d\n", dataSize);
     *dest = malloc(dataSize);
-    fread(*dest, sizeof(int16_t), dataSize*2, myWAV);
+
+    for(int i = dataSize*2-1; i >= 0; i--){
+        fread((*dest)+i, sizeof(int16_t), 1, myWAV);
+    }
+    // fread(*dest, sizeof(int16_t), dataSize*2, myWAV);
 
 
     fclose(myWAV);
@@ -155,22 +159,22 @@ void tr_insert(struct sound_seg* src_track,
     return;
 }
 
-// void main(){
+void main(){
 
-//     int16_t *dest;
+    int16_t *dest;
 
-//     if(wav_load("./Ouch-6.wav", &dest) == 1){
-//         printf("Complete load.\n");
-//     }
+    if(wav_load("./Good Morning.wav", &dest) == 1){
+        printf("Complete load.\n");
+    }
 
 
-//     if(dest != NULL){
-//         free(dest);
-//     }
+    if(dest != NULL){
+        free(dest);
+    }
     
 
 
-// }
+}
 
 
 // void main(){
