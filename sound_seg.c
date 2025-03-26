@@ -245,7 +245,7 @@ void tr_read(struct sound_seg* track, int16_t* dest, size_t pos, size_t len) {
 void tr_write(struct sound_seg* track, int16_t* src, size_t pos, size_t len) {
 
     // Reallocate memory for the data.
-    int16_t *temp = realloc(track->data, (pos+len)*2);
+    int16_t *temp = realloc(track->data, ((pos+len)>track->trackLen ? (pos+len):track->trackLen)*2);
     // Check if the reallocation success.
     if(temp == NULL){
         printf("The reallocation failed.\n");
@@ -314,10 +314,10 @@ void main(){
     // Initialize the track.
     struct sound_seg *myTrack = tr_init();
 
-    // // Write the content in buffer, to the track, at the position 0.
-    tr_write(myTrack, buff, 0, 23808);
-    tr_write(myTrack, buff, 11904, 23808);
-    wav_save("./copy.wav", myTrack->data, myTrack->trackLen);
+    // // // Write the content in buffer, to the track, at the position 0.
+    // tr_write(myTrack, buff, 0, 23808);
+    // tr_write(myTrack, buff, 11904, 23808);
+    // wav_save("./copy.wav", myTrack->data, myTrack->trackLen);
 
     // // Write the buffer into the track.
     // tr_write(myTrack, ((int16_t[]){}), 0, 0);
@@ -326,6 +326,18 @@ void main(){
     // printf("Size: %ld\n", myTrack->trackLen);
     // tr_write(myTrack, ((int16_t[]){0}), 0, 1);
     // printf("Size: %ld\n", myTrack->trackLen);
+
+    		
+    struct sound_seg* s0 = tr_init();	
+    tr_write(s0, ((int16_t[]){5}), 0, 1);
+    tr_write(s0, ((int16_t[]){7}), 0, 1);	
+    tr_write(s0, ((int16_t[]){-9}), 0, 1);	
+    tr_write(s0, ((int16_t[]){-13,-3}), 0, 2);	
+    tr_write(s0, ((int16_t[]){-3,1,-1,-14}), 1, 4);	
+    tr_write(s0, ((int16_t[]){7}), 0, 1);
+    printf("Size: %ld\n", s0->trackLen);
+
+    tr_destroy(s0);
 
     // // Destroy the track
     tr_destroy(myTrack);
