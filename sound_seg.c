@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 
-#define BUFFER_LEN 128
+#define BUFFER_LEN 524288
 #define WAV_HEADER_OFFSET 44
 
 
@@ -132,6 +132,7 @@ int wav_load(const char* filename, int16_t* dest){
     handle_endian(&header);
     print_header(header);
 
+    // Fixed size buffer version.
     fread(dest, sizeof(int16_t), header.subChunk2Size/2, myWAV);
 
     // // Dynamically allocate memory for the buffer.
@@ -199,15 +200,13 @@ void wav_save(const char* fname, int16_t* src, size_t len){
 
     fclose(myWAV);
 
-
-
     return;
 }
 
 
 // Initialize a new sound_seg object
 struct sound_seg* tr_init() {
-    struct sound_seg *myTrack;
+    struct sound_seg *myTrack = malloc(sizeof(struct sound_seg));
     myTrack->trackLen = 0;
     myTrack->data = NULL;
 
@@ -221,6 +220,7 @@ void tr_destroy(struct sound_seg* obj) {
     if(obj->data != NULL){
         free(obj->data);
     }
+    free(obj);
 
     return;
 }
@@ -244,11 +244,18 @@ void tr_read(struct sound_seg* track, int16_t* dest, size_t pos, size_t len) {
 }
 
 
-// Write len elements from src into position pos
+// Write len elements (int16_t) from src into position pos
 void tr_write(struct sound_seg* track, int16_t* src, size_t pos, size_t len) {
+    bool appending = false;
+    if(pos == track->trackLen){
+        appending = true;
+    }
+
     printf("Old data position: %p\n", track->data);
+    printf("Old data size: %ld\n", track->trackLen);
+
     // Reallocate memory for the data.
-    int16_t *temp = realloc(track->data, (pos+len)*2);
+    int16_t *temp = realloc(track->data, (track->trackLen+len)*2);
     // Check if the reallocation success.
     if(temp == NULL){
         printf("The reallocation failed.\n");
@@ -259,16 +266,21 @@ void tr_write(struct sound_seg* track, int16_t* src, size_t pos, size_t len) {
         track->data = temp;
     }
     // Update the new track lenght.
-    track->trackLen = pos+len;
+    track->trackLen = track->trackLen+len;
 
-    printf("Data location: %p\n", track->data);
+    printf("New data location: %p\n", track->data);
+    printf("New data size: %ld\n", track->trackLen);
 
-    int16_t *posToWrite = track->data;
-    for(int i = 0; i < pos; i++){
-        posToWrite++;
-    }
+    int16_t *posToWrite = track->data + pos;
+    int16_t *posToCopy = posToWrite + len;
     
     printf("Position to write: %p\n", posToWrite);
+    printf("Position to copy: %p\n", posToCopy);
+    // Copy the element at pos-old_end to pos+len-new_end if the position is not the an appending.
+    if(!appending){
+        printf("Not appending.\n");
+        memcpy(posToCopy, posToWrite, track->trackLen-len-pos);
+    }
     memcpy(posToWrite, src, len*2);
 
     return;
@@ -299,6 +311,7 @@ bool tr_delete_range(struct sound_seg* track, size_t pos, size_t len) {
 
 // Returns a string containing <start>,<end> ad pairs in target
 char* tr_identify(struct sound_seg* target, struct sound_seg* ad){
+
     return NULL;
 }
 
@@ -312,49 +325,43 @@ void tr_insert(struct sound_seg* src_track,
 
 
 
-// void main(){
+void main(){
 
-//     int16_t buff[BUFFER_LEN];
+    int16_t buff[BUFFER_LEN];
+    // int16_t* buff;
 
-//     wav_load("./test.wav", buff);
+    wav_load("./input.wav", buff);
 
-//     for(int i = 0; i < sizeof(buff)/sizeof(int16_t); i++){
-//         if(buff[i] != 0){
-//             printf("%d ", buff[i]);
-//         }
-//     }
-//     printf("\n");
+    // Initialize the track.
+    struct sound_seg *myTrack = tr_init();
 
-//     struct sound_seg *myTrack = tr_init();
-//     printf("Position of my track: %p\n", myTrack);
+    // // Write the content in buffer, to the track, at the position 0.
+    tr_write(myTrack, buff, 0, 23808);
+    tr_write(myTrack, buff, 11904, 23808);
+    wav_save("./copy.wav", myTrack->data, myTrack->trackLen);
 
-//     tr_write(myTrack, buff, 0, 10);
-//     for(int i = 0; i < myTrack->trackLen; i++){
-//         printf("Data %d: %d\n", i, myTrack->data[i]);
-//     }
-
-//     tr_destroy(myTrack);
+    // // Destroy the track
+    tr_destroy(myTrack);
 
 
 
+    // Dynamical version.
+    // if(wav_load("./input.wav", dest) == 1){
+    //     printf("Complete load.\n");
+    // }else{
+    //     printf("Failed.\n");
+    //     if(dest != NULL){
+    //         free(dest);
+    //     }
+    //     return;
+    // }
 
-//     // Dynamical version.
-//     // if(wav_load("./input.wav", dest) == 1){
-//     //     printf("Complete load.\n");
-//     // }else{
-//     //     printf("Failed.\n");
-//     //     if(dest != NULL){
-//     //         free(dest);
-//     //     }
-//     //     return;
-//     // }
+    // wav_save("./output.wav", dest, 47616/2);
 
-//     // wav_save("./output.wav", dest, 47616/2);
-
-//     // if(dest != NULL){
-//     //     free(dest);
-//     // }
+    // if(dest != NULL){
+    //     free(dest);
+    // }
     
 
 
-// }
+}
