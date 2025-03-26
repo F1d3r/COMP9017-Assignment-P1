@@ -244,8 +244,10 @@ void tr_read(struct sound_seg* track, int16_t* dest, size_t pos, size_t len) {
 // Write len elements (int16_t) from src into position pos
 void tr_write(struct sound_seg* track, int16_t* src, size_t pos, size_t len) {
 
+    // Update the new track lenght.
+    track->trackLen = (pos+len)>track->trackLen ? (pos+len):track->trackLen;
     // Reallocate memory for the data.
-    int16_t *temp = realloc(track->data, ((pos+len)>track->trackLen ? (pos+len):track->trackLen)*2);
+    int16_t *temp = realloc(track->data, track->trackLen*2);
     // Check if the reallocation success.
     if(temp == NULL){
         printf("The reallocation failed.\n");
@@ -255,8 +257,6 @@ void tr_write(struct sound_seg* track, int16_t* src, size_t pos, size_t len) {
         printf("The reallocation success.\n");
         track->data = temp;
     }
-    // Update the new track lenght.
-    track->trackLen = pos+len;
 
     // Copy the content to the position
     int16_t *posToWrite = track->data + pos;
