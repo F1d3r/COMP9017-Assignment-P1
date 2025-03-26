@@ -243,16 +243,9 @@ void tr_read(struct sound_seg* track, int16_t* dest, size_t pos, size_t len) {
 
 // Write len elements (int16_t) from src into position pos
 void tr_write(struct sound_seg* track, int16_t* src, size_t pos, size_t len) {
-    bool appending = false;
-    if(pos == track->trackLen){
-        appending = true;
-    }
-
-    printf("Old data position: %p\n", track->data);
-    printf("Old data size: %ld\n", track->trackLen);
 
     // Reallocate memory for the data.
-    int16_t *temp = realloc(track->data, (track->trackLen+len)*2);
+    int16_t *temp = realloc(track->data, (pos+len)*2);
     // Check if the reallocation success.
     if(temp == NULL){
         printf("The reallocation failed.\n");
@@ -263,21 +256,10 @@ void tr_write(struct sound_seg* track, int16_t* src, size_t pos, size_t len) {
         track->data = temp;
     }
     // Update the new track lenght.
-    track->trackLen = track->trackLen+len;
+    track->trackLen = pos+len;
 
-    printf("New data location: %p\n", track->data);
-    printf("New data size: %ld\n", track->trackLen);
-
+    // Copy the content to the position
     int16_t *posToWrite = track->data + pos;
-    int16_t *posToCopy = posToWrite + len;
-    
-    printf("Position to write: %p\n", posToWrite);
-    printf("Position to copy: %p\n", posToCopy);
-    // Copy the element at pos-old_end to pos+len-new_end if the position is not the an appending.
-    if(!appending){
-        printf("Not appending.\n");
-        memcpy(posToCopy, posToWrite, track->trackLen-len-pos);
-    }
     memcpy(posToWrite, src, len*2);
 
     return;
@@ -332,21 +314,18 @@ void main(){
     // Initialize the track.
     struct sound_seg *myTrack = tr_init();
 
-    // // // Write the content in buffer, to the track, at the position 0.
-    // tr_write(myTrack, buff, 0, 23808);
-    // tr_write(myTrack, buff, 11904, 23808);
-    // wav_save("./copy.wav", myTrack->data, myTrack->trackLen);
+    // // Write the content in buffer, to the track, at the position 0.
+    tr_write(myTrack, buff, 0, 23808);
+    tr_write(myTrack, buff, 11904, 23808);
+    wav_save("./copy.wav", myTrack->data, myTrack->trackLen);
 
-    // Write the buffer into the track.
-    tr_write(myTrack, buff, 0, 10);
-    // Read the content back.
-    buff[5] -= 1;
-    tr_read(myTrack, buff, 0, 10);
-    
-    for(int i = 0; i < 10; i++){
-        printf("%d ", buff[i]);
-    }
-    printf("\n");
+    // // Write the buffer into the track.
+    // tr_write(myTrack, ((int16_t[]){}), 0, 0);
+    // printf("Size: %ld\n", myTrack->trackLen);
+    // tr_write(myTrack, ((int16_t[]){0}), 0, 1);
+    // printf("Size: %ld\n", myTrack->trackLen);
+    // tr_write(myTrack, ((int16_t[]){0}), 0, 1);
+    // printf("Size: %ld\n", myTrack->trackLen);
 
     // // Destroy the track
     tr_destroy(myTrack);
