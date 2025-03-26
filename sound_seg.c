@@ -234,11 +234,8 @@ size_t tr_length(struct sound_seg* seg) {
 
 // Read len elements from position pos into dest
 void tr_read(struct sound_seg* track, int16_t* dest, size_t pos, size_t len) {
-    int16_t *dataPos = track->data;
-    for(int i = 0; i < pos; i++){
-        dataPos ++;
-    }
-    memcpy(dest, dataPos, len);
+    int16_t *dataPos = track->data + pos;
+    memcpy(dest, dataPos, len*2);
 
     return;
 }
@@ -330,15 +327,26 @@ void main(){
     int16_t buff[BUFFER_LEN];
     // int16_t* buff;
 
-    wav_load("./input.wav", buff);
+    wav_load("./test.wav", buff);
 
     // Initialize the track.
     struct sound_seg *myTrack = tr_init();
 
-    // // Write the content in buffer, to the track, at the position 0.
-    tr_write(myTrack, buff, 0, 23808);
-    tr_write(myTrack, buff, 11904, 23808);
-    wav_save("./copy.wav", myTrack->data, myTrack->trackLen);
+    // // // Write the content in buffer, to the track, at the position 0.
+    // tr_write(myTrack, buff, 0, 23808);
+    // tr_write(myTrack, buff, 11904, 23808);
+    // wav_save("./copy.wav", myTrack->data, myTrack->trackLen);
+
+    // Write the buffer into the track.
+    tr_write(myTrack, buff, 0, 10);
+    // Read the content back.
+    buff[5] -= 1;
+    tr_read(myTrack, buff, 0, 10);
+    
+    for(int i = 0; i < 10; i++){
+        printf("%d ", buff[i]);
+    }
+    printf("\n");
 
     // // Destroy the track
     tr_destroy(myTrack);
