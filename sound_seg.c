@@ -268,16 +268,19 @@ void tr_write(struct sound_seg* track, int16_t* src, size_t pos, size_t len) {
 
 // Delete a range of elements from the track
 bool tr_delete_range(struct sound_seg* track, size_t pos, size_t len) {
-    int16_t *newData = realloc(track->data, track->trackLen-len);
-    if(newData == NULL){
-        printf("Reallocation failed.\n");
-        return false;
-    }
+    printf("Old memory location: %p\n", track->data);
+    printf("Old size: %ld\n", track->trackLen);
+
     // Update the new length.
     track->trackLen -= len;
+    // Allocate memory space for new track size.
+    int16_t *newData = malloc(track->trackLen*2);
     // Copy the old value
-    memcpy(newData, track->data, pos);
-    memcpy(newData+pos, newData+pos+len, track->trackLen-pos);
+    memcpy(newData, track->data, pos*2);
+    memcpy(newData+pos, track->data+pos+len, (track->trackLen-pos)*2);
+
+    printf("New memory location: %p\n", track->data);
+    printf("New size: %ld\n", track->trackLen);
 
     // Free old data.
     free(track->data);
@@ -328,16 +331,29 @@ void main(){
     // printf("Size: %ld\n", myTrack->trackLen);
 
     		
-    struct sound_seg* s0 = tr_init();	
-    tr_write(s0, ((int16_t[]){5}), 0, 1);
-    tr_write(s0, ((int16_t[]){7}), 0, 1);	
-    tr_write(s0, ((int16_t[]){-9}), 0, 1);	
-    tr_write(s0, ((int16_t[]){-13,-3}), 0, 2);	
-    tr_write(s0, ((int16_t[]){-3,1,-1,-14}), 1, 4);	
-    tr_write(s0, ((int16_t[]){7}), 0, 1);
-    printf("Size: %ld\n", s0->trackLen);
+    // struct sound_seg* s0 = tr_init();	
+    // tr_write(s0, ((int16_t[]){5}), 0, 1);
+    // tr_write(s0, ((int16_t[]){7}), 0, 1);	
+    // tr_write(s0, ((int16_t[]){-9}), 0, 1);	
+    // tr_write(s0, ((int16_t[]){-13,-3}), 0, 2);	
+    // tr_write(s0, ((int16_t[]){-3,1,-1,-14}), 1, 4);	
+    // tr_write(s0, ((int16_t[]){7}), 0, 1);
+    // printf("Size: %ld\n", s0->trackLen);
+    // tr_destroy(s0);
 
+    // Delete Range
+    struct sound_seg* s0 = tr_init();	
+    tr_write(s0, ((int16_t[]){17,-15,-8,19,-12,11,2,18,16,-19,-13}), 0, 11);	
+    struct sound_seg* s1 = tr_init();	
+    tr_write(s1, ((int16_t[]){-8,-8,-7,-16,7}), 0, 5);	
+    tr_delete_range(s0, 1, 2);
+    for(int i = 0; i < s0->trackLen; i++){
+        printf("%d, ", s0->data[i]);
+    }
     tr_destroy(s0);
+    tr_destroy(s1);
+    
+
 
     // // Destroy the track
     tr_destroy(myTrack);
