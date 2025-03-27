@@ -6,6 +6,7 @@
 #include <stdio.h>
 
 #define BUFFER_LEN 524288
+#define INT_BUFFER_LEN 11
 #define WAV_HEADER_OFFSET 44
 
 
@@ -291,10 +292,57 @@ bool tr_delete_range(struct sound_seg* track, size_t pos, size_t len) {
 }
 
 
+// Given two integers, return a string composed of them: "<start>,<end>".
+char* get_string(int start, int end){
+    char buf1[INT_BUFFER_LEN];
+    char buf2[INT_BUFFER_LEN];
+    sprintf(buf1, "%d", start);
+    sprintf(buf2, "%d", end);
+    char* str = malloc(sizeof(char) * (strlen(buf1) + strlen(buf2) + 2));
+    strcpy(str, buf1);
+    strcpy(str+strlen(buf1), ",");
+    strcpy(str+strlen(buf1) + 1, buf2);
+
+    return str;
+}
+
+
 // Returns a string containing <start>,<end> ad pairs in target
 char* tr_identify(struct sound_seg* target, struct sound_seg* ad){
+    int start = 0;
+    int end = 0;
+    bool match = false;
+    char* result;
 
-    return NULL;
+    for(int i = 0; i < target->trackLen; i++){
+        start = i;
+        for(int j = 0; j < ad->trackLen; j++){
+            end = i+j;
+            printf("start: %d, end: %d.\n", start, end);
+            // If one sample is not match, break.
+            if(target->data[i+j] != ad->data[j]){
+                printf("Not match this iteration.\n");
+                end = 0;
+                break;
+            }
+        }
+        // If the match size end-start = ad->trackLen, indicating the whole match.
+        if(end == start+ad->trackLen-1){
+            printf("Find a match.\n");
+            // printf("start: %d, end: %d.\n", start, end);
+            match = true;
+            break;
+        }
+    }
+
+    if(match){
+        result = get_string(start, end);
+    }else{
+        result = malloc(sizeof(char));
+        strcpy(result, "\0");
+    }
+
+    return result;
 }
 
 
@@ -309,15 +357,15 @@ void tr_insert(struct sound_seg* src_track,
 
 void main(){
 
-    int16_t buff[BUFFER_LEN];
-    // int16_t* buff;
+    // int16_t buff[BUFFER_LEN];
+    // // int16_t* buff;
 
-    wav_load("./test.wav", buff);
+    // wav_load("./test.wav", buff);
 
-    // Initialize the track.
-    struct sound_seg *myTrack = tr_init();
+    // // Initialize the track.
+    // struct sound_seg *myTrack = tr_init();
 
-    // // // Write the content in buffer, to the track, at the position 0.
+    // // Write the content in buffer, to the track, at the position 0.
     // tr_write(myTrack, buff, 0, 23808);
     // tr_write(myTrack, buff, 11904, 23808);
     // wav_save("./copy.wav", myTrack->data, myTrack->trackLen);
@@ -329,8 +377,12 @@ void main(){
     // printf("Size: %ld\n", myTrack->trackLen);
     // tr_write(myTrack, ((int16_t[]){0}), 0, 1);
     // printf("Size: %ld\n", myTrack->trackLen);
+    
+    // // Destroy the track
+    // tr_destroy(myTrack);
 
-    		
+
+    // // Write to the track.
     // struct sound_seg* s0 = tr_init();	
     // tr_write(s0, ((int16_t[]){5}), 0, 1);
     // tr_write(s0, ((int16_t[]){7}), 0, 1);	
@@ -341,22 +393,48 @@ void main(){
     // printf("Size: %ld\n", s0->trackLen);
     // tr_destroy(s0);
 
-    // Delete Range
-    struct sound_seg* s0 = tr_init();	
-    tr_write(s0, ((int16_t[]){17,-15,-8,19,-12,11,2,18,16,-19,-13}), 0, 11);	
-    struct sound_seg* s1 = tr_init();	
-    tr_write(s1, ((int16_t[]){-8,-8,-7,-16,7}), 0, 5);	
-    tr_delete_range(s0, 1, 2);
-    for(int i = 0; i < s0->trackLen; i++){
-        printf("%d, ", s0->data[i]);
-    }
-    tr_destroy(s0);
-    tr_destroy(s1);
-    
+
+    // // Delete Range
+    // struct sound_seg* s0 = tr_init();	
+    // tr_write(s0, ((int16_t[]){17,-15,-8,19,-12,11,2,18,16,-19,-13}), 0, 11);	
+    // struct sound_seg* s1 = tr_init();	
+    // tr_write(s1, ((int16_t[]){-8,-8,-7,-16,7}), 0, 5);	
+    // tr_delete_range(s0, 1, 2);
+    // for(int i = 0; i < s0->trackLen; i++){
+    //     printf("%d, ", s0->data[i]);
+    // }
+    // tr_destroy(s0);
+    // tr_destroy(s1);
 
 
-    // // Destroy the track
-    tr_destroy(myTrack);
+    // // Identify advertisement
+    // // Write a raw audio.
+    // struct sound_seg* s0 = tr_init();	
+    // tr_write(s0, ((int16_t[]){10, 10, 10, 2, 1, 2, 10, 10, 10}), 0, 9);
+    // wav_save("./whole.wav", s0->data, s0->trackLen);
+    // // Write a advertisement
+    // struct sound_seg* s1 = tr_init();	
+    // tr_write(s1, ((int16_t[]){2, 1, 2}), 0, 3);
+    // wav_save("./advertisement.wav", s1->data, s1->trackLen);
+    // // Read another audio
+    // int16_t buff[BUFFER_LEN];
+    // wav_load("./test.wav", buff);
+    // struct sound_seg* s2 = tr_init();	
+    // tr_write(s2, buff, 0, 10);
+
+    // // Test if the advertisement in two audio.
+    // char* str1 = tr_identify(s0, s1);
+    // char* str2 = tr_identify(s2, s1);
+    // printf("The advertisement: %s\n", str1);
+    // printf("The advertisement: %s\n", str2);
+
+    // free(str1);
+    // free(str2);
+
+    // tr_destroy(s0);
+    // tr_destroy(s1);
+    // tr_destroy(s2);
+
 
 
 
