@@ -989,7 +989,7 @@ bool tr_delete_range(Track* track, size_t pos, size_t len){
     }
 
 
-    // check_merge(track);
+    check_merge(track);
 
     return true;
 }
@@ -1050,7 +1050,6 @@ char* tr_identify(struct sound_seg* target, struct sound_seg* ad){
 
 
 void main(){ 
-
 
     return;
 }
