@@ -14,7 +14,6 @@ volatile int num_tracks = 0;
 volatile int num_samples = 0;
 
 
-
 typedef struct sound_seg {
     struct sound_seg* parent;
     struct sound_seg** children;    // Children is a pointer to an set of pointers.
@@ -595,7 +594,7 @@ bool check_neighbor(Track* prev, Track* next){
             if(prev->children[i]->next == next->children[j]){
                 // We find the match.
                 // Check if the match has same property.
-                if(!check_neighbor(prev->children[i]->next, next->children[j])){
+                if(!check_neighbor(prev->children[i], next->children[j])){
                     return false;
                 }
                 // If these match neighbor has same property.
@@ -656,6 +655,7 @@ void check_merge(Track* track){
             // And all their neibor children has the same property.
             // We can merge them!
             merge_track(current_root_parent, next_root_parent);
+            continue;
         }
 
         // If not, the merge fails.
@@ -988,7 +988,8 @@ bool tr_delete_range(Track* track, size_t pos, size_t len){
         track_before_delete->next = track_after_delete;
     }
 
-    check_merge(track);
+
+    // check_merge(track);
 
     return true;
 }
@@ -1048,19 +1049,8 @@ char* tr_identify(struct sound_seg* target, struct sound_seg* ad){
 }
 
 
-void main(){  
-    struct sound_seg* s2 = tr_init();	
-    tr_write(s2, ((int16_t[]){-16,-13,19,-15,-3,4,2,-18,20,9,-12,-4,9,15,1,14,-17,-2,-10,19,16,-18,-10,4,-19,16,2,-1,-11,20,-3,-10,-20,-16,13,8,0,-4,13,-10,-12,12,1,20,-17,20,-11,-14,4,3,-16,14,12,20,-10,-7,-6,-12,15,-10,-13,-9,-9,-3,-13,-17,17,-1,11,-7,-5,-5,-14,12,0,-1,-5,-5,16,2,3,11,3,-18,14,-10,11,-12,20,0,-10,10,20,18,-10,-16,-12,14,-18,-6,-11,2,0,6,-7,-14,0,2,10,4,3,-13,9,-14,14,9,8,6,-5,-4}), 0, 120);	
-    tr_delete_range(s2, 48, 57); //expect return True	
-    tr_write(s2, ((int16_t[]){4,-15,-11,4,7,10,-2,-15,16,-12,11}), 8, 11);	
-    tr_delete_range(s2, 11, 42); //expect return True	
-    tr_write(s2, ((int16_t[]){5,5,-1,5,8,5,-8,5,-19,-3,12,14,5,20,5,5,5,5,5,-5,7}), 0, 21);	
-    print_data(s2);
-    
-    tr_insert(s2, s2, 14, 1, 12);
-    print_data(s2);
-    
-    tr_destroy(s2);
+void main(){ 
+
 
     return;
 }
