@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <math.h>
 
 #define BUFFER_LEN 524288
 #define INT_BUFFER_LEN 11
@@ -1010,39 +1011,78 @@ char* get_string(int start, int end){
 }
 
 
+// Given a target track and a advertisement sample, calculate the cross
+// correlation. Compare to the autocorrelation of the ad. Find out if
+// the portion of target is the ad.
 // Returns a string containing <start>,<end> ad pairs in target
 char* tr_identify(struct sound_seg* target, struct sound_seg* ad){
-    int start = 0;
-    int end = 0;
-    bool match = false;
-    char* result;
+    // Initialize result.
+    char* result = malloc(1);
+    *result = '\0';
 
-    for(int i = 0; i < target->trackLen; i++){
-        start = i;
-        for(int j = 0; j < ad->trackLen; j++){
-            end = i+j;
-            printf("start: %d, end: %d.\n", start, end);
-            // If one sample is not match, break.
-            if(target->data[i+j] != ad->data[j]){
-                printf("Not match this iteration.\n");
-                end = 0;
-                break;
-            }
-        }
-        // If the match size end-start = ad->trackLen, indicating the whole match.
-        if(end == start+ad->trackLen-1){
-            printf("Find a match.\n");
-            // printf("start: %d, end: %d.\n", start, end);
-            match = true;
-            break;
-        }
+    char buff1[20];
+    char buff2[20];
+
+    // Convert target and ad to array.
+    int16_t* target_data = NULL;
+    int16_t* ad_data = NULL;
+    // Calculate the number of samples in target and ad.
+    int num_target_sample = 0;
+    int num_ad_sample = 0;
+    while(target != NULL){
+        num_target_sample += target->trackLen;
+        target_data = realloc(target_data, sizeof(int16_t)*num_target_sample);
+        memcpy(target_data+(num_target_sample-target->trackLen), target->data, sizeof(int16_t)*target->trackLen);
+        target = target->next;
+    }
+    while(ad != NULL){
+        num_ad_sample += ad->trackLen;
+        ad_data = realloc(ad_data, sizeof(int16_t)*num_ad_sample);
+        memcpy(ad_data+(num_ad_sample-ad->trackLen), ad->data, sizeof(int16_t)*ad->trackLen);
+        ad = ad->next;
+    }
+    if(num_target_sample < num_ad_sample){
+        return result;
     }
 
-    if(match){
-        result = get_string(start, end);
-    }else{
-        result = malloc(sizeof(char));
-        strcpy(result, "\0");
+    // Calculate autocorrelation.
+    int auto_correlation = 0;
+    for(int i = 0; i < num_ad_sample; i++){
+        auto_correlation += pow(ad_data[i], 2);
+    }
+
+    bool match = false;
+    // Now, from the start, calculate the cross correlation.
+    for(int i = 0; i <= num_target_sample-num_ad_sample; i++){
+        printf("%d\n", i);
+        int cross_correlation = 0;
+        // Calculate cross correlation for current position.
+        for(int j = 0; j < num_ad_sample; j++){
+            cross_correlation += target_data[i+j]*ad_data[j];
+        }
+        // If the cross_correlation is 95%-105% to the autocorrelation.
+        if(0.95 <= (float)cross_correlation/auto_correlation 
+            && (float)cross_correlation/auto_correlation <= 1.05){
+            printf("Find a match.\n");
+            // Convert the index to string.
+            sprintf(buff1, "%d", i);
+            sprintf(buff2, "%d", i+num_ad_sample-1);
+            result = realloc(result, strlen(result)+strlen(buff1)+strlen(buff2)+3);
+            strcpy(result+strlen(result), buff1);
+            strcpy(result+strlen(result), ",");
+            strcpy(result+strlen(result), buff2);
+            strcpy(result+strlen(result), "\n");
+
+            // Jump to next possible possition. Given the ad is not overlapping.
+            i += num_ad_sample-1;
+        }
+    }
+    // Free target and ad data.
+    free(target_data);
+    free(ad_data);
+    // Remove the '\n' at the end if exists.
+    if(result[strlen(result)-1] == '\n'){
+        result[strlen(result)-1] = '\0';
     }
 
     return result;
@@ -1050,6 +1090,7 @@ char* tr_identify(struct sound_seg* target, struct sound_seg* ad){
 
 
 void main(){ 
+
 
     return;
 }
