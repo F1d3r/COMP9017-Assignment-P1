@@ -1,11 +1,11 @@
 #include <stdio.h>
 
-#include "../include/child_parent.h"
-#include "../include/helper.h"
-#include "../include/list_op.h"
-#include "../include/struct.h"
-#include "../include/track.h"
-#include "../include/wav.h"
+#include "../../include/child_parent.h"
+#include "../../include/helper.h"
+#include "../../include/list_op.h"
+#include "../../include/struct.h"
+#include "../../include/track.h"
+#include "../../include/wav.h"
 
 void main(){ 
     // Test helper functions.
@@ -52,13 +52,17 @@ void main(){
 
     // Test tr_load and tr_save.
     int16_t buff1[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-    int16_t buff2[10];
-    wav_save("../wav/test.wav", buff1, 10);
-    wav_load("../wav/test.wav", buff2);
+    int16_t buff2[10] = {};
 
-    // Print the buff2 to see if all content are saved and load.
-    for(int i = 0; i < 10; i++){
-        printf("%d\n", buff2[i]);
+    // Note: remember to change the file path if called individually in different current path.
+    wav_save("../wav/test.wav", buff1, 10);
+    int success = wav_load("../wav/test.wav", buff2);
+
+    if(success != 0){
+        // Print the buff2 to see if all content are saved and load.
+        for(int i = 0; i < 10; i++){
+            printf("%d\n", buff2[i]);
+        }
     }
 
     return;

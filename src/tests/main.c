@@ -1,9 +1,9 @@
-#include "../include/child_parent.h"
-#include "../include/helper.h"
-#include "../include/list_op.h"
-#include "../include/struct.h"
-#include "../include/track.h"
-#include "../include/wav.h"
+#include "../../include/child_parent.h"
+#include "../../include/helper.h"
+#include "../../include/list_op.h"
+#include "../../include/struct.h"
+#include "../../include/track.h"
+#include "../../include/wav.h"
 
 
 void main(){ 
