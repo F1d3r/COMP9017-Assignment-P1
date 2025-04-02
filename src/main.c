@@ -1,4 +1,10 @@
-#include "src/sound_seg.h"
+#include "../include/child_parent.h"
+#include "../include/helper.h"
+#include "../include/list_op.h"
+#include "../include/struct.h"
+#include "../include/track.h"
+#include "../include/wav.h"
+
 
 void main(){ 
 
@@ -7,11 +13,11 @@ void main(){
     
     tr_insert(s0, s0, 2, 0, 3);
 
-    print_data(s0);
+    print_data(s0, true);
 
     Track* lists[1] = {s0};
     tr_resolve(lists, 1);
-    print_data(s0);
+    print_data(s0, true);
 
 
     tr_destroy(s0);

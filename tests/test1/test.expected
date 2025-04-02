@@ -1,0 +1,48 @@
+3412
+
+bbaa
+
+3412
+
+bbaa
+
+78563412
+
+ddccbbaa
+
+Chunk ID: RIFF
+Chunk Size: 56
+Format: WAVE
+Subchunk 1 ID: fmt 
+Audio format: PCM
+Number of channels: Mono
+Sample rate: 8000
+Byte rate: 16000
+Block align: 2
+Bits per sample: 16
+Subchunk 2 ID: data
+Subchunk 2 Size: 20
+
+Chunk ID: FFIR
+Chunk Size: 56
+Format: EVAW
+Subchunk 1 ID:  tmf
+Audio format: PCM
+Number of channels: Mono
+Sample rate: 8000
+Byte rate: 16000
+Block align: 2
+Bits per sample: 16
+Subchunk 2 ID: atad
+Subchunk 2 Size: 20
+
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
