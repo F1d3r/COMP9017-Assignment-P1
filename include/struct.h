@@ -15,19 +15,19 @@ typedef struct sound_seg {
 
 
 typedef struct {
-    uint32_t chunkID;
-    uint32_t chunkSize;
+    uint32_t chunk_ID;
+    uint32_t chunk_size;
     uint32_t format;
-    uint32_t subChunk1ID;
-    uint32_t subChunk1Size;
-    uint16_t audioFormat;
-    uint16_t numChannels;
-    uint32_t sampleRate;
-    uint32_t byteRate;
-    uint16_t blockAlign;
-    uint16_t bitsPerSample;
-    uint32_t subChunk2ID;
-    uint32_t subChunk2Size;
+    uint32_t sub_chunk1_ID;
+    uint32_t sub_chunk1_size;
+    uint16_t audio_format;
+    uint16_t num_channels;
+    uint32_t sample_rate;
+    uint32_t byte_rate;
+    uint16_t block_align;
+    uint16_t bits_per_sample;
+    uint32_t sub_chunk2_ID;
+    uint32_t sub_chunk2_size;
 } WAVHeader;
 
 #endif

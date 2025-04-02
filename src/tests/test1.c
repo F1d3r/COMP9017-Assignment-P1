@@ -29,19 +29,19 @@ void main(){
     // Test print header.
     int len = 10;
     WAVHeader myHeader;
-    myHeader.chunkID = 0x52494646;
-    myHeader.chunkSize = 36 + len;
+    myHeader.chunk_ID = 0x52494646;
+    myHeader.chunk_size = 36 + len;
     myHeader.format = 0x57415645;
-    myHeader.subChunk1ID = 0x666d7420;
-    myHeader.subChunk1Size = 16;
-    myHeader.audioFormat = 1;
-    myHeader.numChannels = 1;
-    myHeader.sampleRate = 8000;
-    myHeader.byteRate = 8000 * 1 * 16 / 8;
-    myHeader.blockAlign = 1 * 16 / 8;
-    myHeader.bitsPerSample = 16;
-    myHeader.subChunk2ID = 0x64617461;
-    myHeader.subChunk2Size = len * 1 * 16 / 8;
+    myHeader.sub_chunk1_ID = 0x666d7420;
+    myHeader.sub_chunk1_size = 16;
+    myHeader.audio_format = 1;
+    myHeader.num_channels = 1;
+    myHeader.sample_rate = 8000;
+    myHeader.byte_rate = 8000 * 1 * 16 / 8;
+    myHeader.block_align = 1 * 16 / 8;
+    myHeader.bits_per_sample = 16;
+    myHeader.sub_chunk2_ID = 0x64617461;
+    myHeader.sub_chunk2_size = len * 1 * 16 / 8;
     print_header(myHeader);
 
     
