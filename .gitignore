@@ -1,0 +1,18 @@
+Fider:
+[图片]
+
+Fider:
+# object, executable file
+*.o
+
+# wav
+wav/
+
+# vscode
+.vscode/
+
+# binary
+bin/
+
+question.txt
+
