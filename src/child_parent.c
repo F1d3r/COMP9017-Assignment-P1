@@ -11,7 +11,7 @@ void add_child(Track* parent, Track* child){
             // Unify the data and data lenght of the child to parent.
             child->parent = parent;
             child->data = parent->data;
-            child->trackLen = parent->trackLen;
+            child->track_len = parent->track_len;
             return;
         }
     }
@@ -26,7 +26,7 @@ void add_child(Track* parent, Track* child){
     child->parent = parent;
     // Share data.
     child->data = parent->data;
-    child->trackLen = parent->trackLen;
+    child->track_len = parent->track_len;
 }
 
 

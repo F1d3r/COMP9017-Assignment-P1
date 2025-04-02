@@ -11,7 +11,7 @@ void main(){
     // Test the tr_init() and tr_destroy()
     Track* myTrack1 = tr_init();
     printf("%p\n", myTrack1->next);
-    printf("%d\n", myTrack1->trackLen);
+    printf("%d\n", myTrack1->track_len);
     printf("%p\n", myTrack1->parent);
     printf("%d\n", myTrack1->num_children);
     printf("%p\n", myTrack1->children);
@@ -19,7 +19,7 @@ void main(){
 
     Track* myTrack2 = tr_init();
     printf("%p\n", myTrack2->next);
-    printf("%d\n", myTrack2->trackLen);
+    printf("%d\n", myTrack2->track_len);
     printf("%p\n", myTrack2->parent);
     printf("%d\n", myTrack2->num_children);
     printf("%p\n", myTrack2->children);

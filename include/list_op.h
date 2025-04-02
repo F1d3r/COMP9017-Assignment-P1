@@ -17,7 +17,7 @@ void tr_split(Track* track_to_split, size_t split_pos);
 void split_children(Track* parent);
 
 
-// The valid pos range is [0, track.trackLen]
+// The valid pos range is [0, track.track_len]
 // The element at pos will belongs to the right track afte split.
 void split_track(Track* track, size_t pos);
 

@@ -15,7 +15,7 @@ Track* tr_init(){
     myTrack->num_children = 0;
     myTrack->children = NULL;
     myTrack->next = NULL;
-    myTrack->trackLen = 0;
+    myTrack->track_len = 0;
     myTrack->data = NULL;
 }
 
@@ -26,20 +26,20 @@ void tr_read(Track* track, int16_t* buff, size_t pos, size_t len){
     }
 
     // Go to the correct track to read.
-    while(pos >= track->trackLen){
-        pos -= track->trackLen;
+    while(pos >= track->track_len){
+        pos -= track->track_len;
         track = track->next;
     }
-    size_t buffPos = 0;
-    while(track->trackLen - pos < len){
-        memcpy(buff + buffPos, track->data + pos, (track->trackLen - pos)*2);
-        buffPos += (track->trackLen - pos);
-        len -= (track->trackLen - pos);
+    size_t buff_pos = 0;
+    while(track->track_len - pos < len){
+        memcpy(buff + buff_pos, track->data + pos, (track->track_len - pos)*2);
+        buff_pos += (track->track_len - pos);
+        len -= (track->track_len - pos);
         pos -= pos;
         track = track->next;
     }
     // Read the last track.
-    memcpy(buff+buffPos, track->data, len*2);
+    memcpy(buff+buff_pos, track->data, len*2);
 
     return;
 }
@@ -52,29 +52,29 @@ void tr_write(Track* track, int16_t* buff, size_t pos, size_t len){
 
     // Go to the correct track to write.
     Track* temp = track;
-    while(pos > temp->trackLen){
-        pos -= temp->trackLen;
+    while(pos > temp->track_len){
+        pos -= temp->track_len;
         temp = temp->next;
     }
-    size_t buffPos = 0;
+    size_t buff_pos = 0;
 
     // If the track is empty.
-    if(temp->trackLen == 0){
+    if(temp->track_len == 0){
         // Create a new data memory to store all data.
         temp->data = malloc(sizeof(int16_t)*len);
-        temp->trackLen = len;
-        memcpy(temp->data + pos, buff + buffPos, (temp->trackLen - pos)*2);
+        temp->track_len = len;
+        memcpy(temp->data + pos, buff + buff_pos, (temp->track_len - pos)*2);
         len -= len;
         return;
     }
     
     // Keep writing the data into tracks.
-    while(len >= temp->trackLen - pos){
+    while(len >= temp->track_len - pos){
         // Otherwise, overwrite the track without extend it.
         // Overwrite the all space.
-        memcpy(temp->data + pos, buff + buffPos, (temp->trackLen - pos)*2);
-        buffPos += (temp->trackLen - pos);
-        len -= (temp->trackLen - pos);
+        memcpy(temp->data + pos, buff + buff_pos, (temp->track_len - pos)*2);
+        buff_pos += (temp->track_len - pos);
+        len -= (temp->track_len - pos);
         pos -= pos;
         // If the track is not the last on the list.
         temp = temp->next;
@@ -95,11 +95,11 @@ void tr_write(Track* track, int16_t* buff, size_t pos, size_t len){
             }
             // Create a new track, and write the content in the new track.
             Track* new_track = tr_init();
-            tr_write(new_track, buff+buffPos, 0, len);
+            tr_write(new_track, buff+buff_pos, 0, len);
             // Add the new track at the end of the list.
             temp->next = new_track;
         }else{  // The last track is now being write.
-            memcpy(temp->data+pos, buff+buffPos, sizeof(int16_t)*len);
+            memcpy(temp->data+pos, buff+buff_pos, sizeof(int16_t)*len);
             len -= len;
         }
 
@@ -115,12 +115,12 @@ void tr_destroy(Track* track){
     }
     if(track->data != NULL){
         if(track->parent == NULL){
-            // printf("Freeing %d samples.\n", track->trackLen);
-            // num_samples += track->trackLen;
+            // printf("Freeing %d samples.\n", track->track_len);
+            // num_samples += track->track_len;
             // printf("Total: %d\n", num_samples);
             free(track->data);
             track->data = NULL;
-            track->trackLen = 0;
+            track->track_len = 0;
         }
     }
     // printf("Freeing track %p.\n", track);
@@ -137,7 +137,7 @@ void tr_destroy(Track* track){
 size_t tr_length(Track* track){
     size_t len = 0;
     while(track != NULL){
-        len += track->trackLen;
+        len += track->track_len;
         track = track->next;
     }
 
@@ -155,14 +155,14 @@ void tr_insert(Track* src_track, Track* dest_track, size_t destpos, size_t srcpo
     Track* src_start = src_track;
     size_t temp = 0;
     while(temp != srcpos){
-        temp += src_start->trackLen;
+        temp += src_start->track_len;
         src_start = src_start->next;
     }
     Track* src_end = src_start;
-    temp = src_end->trackLen;
+    temp = src_end->track_len;
     while(temp != len){
         src_end = src_end->next;
-        temp += src_end->trackLen;
+        temp += src_end->track_len;
     }
 
     Track* copy = copy_list(src_start, src_end);
@@ -216,10 +216,10 @@ void tr_insert(Track* src_track, Track* dest_track, size_t destpos, size_t srcpo
         last->next = new_track;
     }else{  // Else, insert after the the dest_before.
         Track* dest_before = dest_track;
-        temp = dest_before->trackLen;
+        temp = dest_before->track_len;
         while(temp < destpos){
             dest_before = dest_before->next;
-            temp += dest_before->trackLen;
+            temp += dest_before->track_len;
         }
         
         Track* last = copy;
@@ -240,7 +240,7 @@ void print_data(Track* myTrack, bool easy){
     // Count the number of datas.
     Track* temp = myTrack;
     while(temp != NULL){
-        len += temp->trackLen;
+        len += temp->track_len;
         temp = temp->next;
     }
     if(!easy){
@@ -253,14 +253,14 @@ void print_data(Track* myTrack, bool easy){
     int sample_num = 0;
     while(myTrack != NULL){
         if(!easy){
-            printf("track %d(%p), %d data: ", track_num, myTrack, myTrack->trackLen);
+            printf("track %d(%p), %d data: ", track_num, myTrack, myTrack->track_len);
             printf("Parent: %p, Children:", myTrack->parent == NULL?NULL:myTrack->parent);
             
             for(int i = 0; i < myTrack->num_children; i++){
                 printf(" %p", myTrack->children[i]);
             }
             printf("\n");
-            for (int i = 0; i < myTrack->trackLen; i++)
+            for (int i = 0; i < myTrack->track_len; i++)
             {
                 printf("[%d][%d]%d ", i, sample_num, myTrack->data[i]);
                 sample_num ++;
@@ -268,8 +268,8 @@ void print_data(Track* myTrack, bool easy){
             myTrack = myTrack->next;
             track_num ++;
         }else{
-            printf("track[%d], %d data:\n", track_num, myTrack->trackLen);
-            for (int i = 0; i < myTrack->trackLen; i++)
+            printf("track[%d], %d data:\n", track_num, myTrack->track_len);
+            for (int i = 0; i < myTrack->track_len; i++)
             {
                 printf("%d\n", myTrack->data[i]);
                 sample_num ++;
@@ -284,7 +284,7 @@ void print_data(Track* myTrack, bool easy){
         while(temp != NULL){
             if(temp->parent == NULL){
                 printf("Root track: %p, data:",temp);
-                for(int i = 0; i < temp->trackLen; i++){
+                for(int i = 0; i < temp->track_len; i++){
                     printf(" %d", temp->data[i]);
                 }
                 printf(". Children:");
@@ -425,7 +425,7 @@ bool tr_delete_range(Track* track, size_t pos, size_t len){
                 free(track->data);
             }
             // Set the length of track to 0.
-            track->trackLen = 0;
+            track->track_len = 0;
         }
     }else{  // The first track to delete is not the first track.
         // Remove all the tracks from start to end.
@@ -436,7 +436,7 @@ bool tr_delete_range(Track* track, size_t pos, size_t len){
             }else{
                 free(current->data);
                 current->data = NULL;
-                current->trackLen = 0;
+                current->track_len = 0;
             }
             Track* temp = current;
             current = current->next;
@@ -475,15 +475,15 @@ char* tr_identify(Track* target, Track* ad){
     int num_target_sample = 0;
     int num_ad_sample = 0;
     while(target != NULL){
-        num_target_sample += target->trackLen;
+        num_target_sample += target->track_len;
         target_data = realloc(target_data, sizeof(int16_t)*num_target_sample);
-        memcpy(target_data+(num_target_sample-target->trackLen), target->data, sizeof(int16_t)*target->trackLen);
+        memcpy(target_data+(num_target_sample-target->track_len), target->data, sizeof(int16_t)*target->track_len);
         target = target->next;
     }
     while(ad != NULL){
-        num_ad_sample += ad->trackLen;
+        num_ad_sample += ad->track_len;
         ad_data = realloc(ad_data, sizeof(int16_t)*num_ad_sample);
-        memcpy(ad_data+(num_ad_sample-ad->trackLen), ad->data, sizeof(int16_t)*ad->trackLen);
+        memcpy(ad_data+(num_ad_sample-ad->track_len), ad->data, sizeof(int16_t)*ad->track_len);
         ad = ad->next;
     }
     if(num_target_sample < num_ad_sample){
@@ -566,8 +566,8 @@ void tr_resolve(Track** list, size_t list_len){
                     if(current->parent == temp){
                         remove_child(temp, current);
                         // Duplicate the data.
-                        current->data = malloc(sizeof(int16_t)*current->trackLen);
-                        memcpy(current->data, temp->data, sizeof(int16_t)*current->trackLen);
+                        current->data = malloc(sizeof(int16_t)*current->track_len);
+                        memcpy(current->data, temp->data, sizeof(int16_t)*current->track_len);
                         find_parent_in_current_list = true;
                         break;
                     }
