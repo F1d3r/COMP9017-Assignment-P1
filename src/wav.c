@@ -2,23 +2,37 @@
 
 #include "../include/wav.h"
 
+#define BITS_PER_BYTE 8
+// From spec of WAV file.
+#define CHUNK_SIZE1_OFFSET 36
+#define CHUNK_ID 0x52494646
+#define FORMAT 0x57415645
+#define SUB_CHUNK1_ID 0x666d7420
+#define SUB_CHUNK1_SIZE 16
+#define AUDIO_FORMAT 1
+#define NUM_CHANNEL 1
+#define SAMPLE_RATE 8000
+#define BITS_PER_SAMPLE 16
+#define SUB_CHUNK2_ID 0x64617461
+
 // Given an unsigned integer with big endian, convert it to little endian form.
 uint16_t convert_to_little_uint16(uint16_t big){
     // For 0xABCD, OR(0xCD00, 0x00AB)
-    return ((big >> 8) | (big << 8));
+    return ((big >> BITS_PER_BYTE) | (big << BITS_PER_BYTE));
 }
 
 
 int16_t convert_to_little_int16(int16_t big){
     // For 0xABCD, OR(0xCD00, 0x00AB)
-    return (((uint16_t)big >> 8) | ((uint16_t)big << 8));
+    return (((uint16_t)big >> BITS_PER_BYTE) | ((uint16_t)big << BITS_PER_BYTE));
 }
 
 
 uint32_t convert_to_little_uint32(uint32_t big){
     // For 0xABCDEFGH, OR(0xGH000000, 0x00EF0000, 0x0000CD00, 0x000000AB)
-    return ((big & (0x000000FF)) << 24 | (big & (0x0000FF00)) << 8 
-    | (big & (0x00FF0000)) >> 8 | (big & (0xFF000000)) >> 24);
+    // FFs are masks.
+    return ((big & (0x000000FF)) << BITS_PER_BYTE*3 | (big & (0x0000FF00)) << BITS_PER_BYTE 
+    | (big & (0x00FF0000)) >> BITS_PER_BYTE | (big & (0xFF000000)) >> BITS_PER_BYTE*3);
 }
 
 
@@ -37,7 +51,7 @@ void print_header(WAVHeader header){
     printf("%c", (char)((header.chunkID & 0x0000FF00)>>8));
     printf("%c\n", (char)((header.chunkID & 0x000000FF)));
 
-    printf("Chunk Size: %d\n", 36+header.subChunk2Size);
+    printf("Chunk Size: %d\n", header.subChunk2Size+CHUNK_SIZE1_OFFSET);
 
     printf("Format: ");
     printf("%c", (char)((header.format & 0xFF000000)>>24));
@@ -76,9 +90,9 @@ void print_header(WAVHeader header){
     printf("Bits per sample: %d\n", header.bitsPerSample);
 
     printf("Subchunk 2 ID: ");
-    printf("%c", (char)((header.subChunk2ID & 0xFF000000)>>24));
-    printf("%c", (char)((header.subChunk2ID & 0x00FF0000)>>16));
-    printf("%c", (char)((header.subChunk2ID & 0x0000FF00)>>8));
+    printf("%c", (char)((header.subChunk2ID & 0xFF000000)>>BITS_PER_BYTE*3));
+    printf("%c", (char)((header.subChunk2ID & 0x00FF0000)>>BITS_PER_BYTE*2));
+    printf("%c", (char)((header.subChunk2ID & 0x0000FF00)>>BITS_PER_BYTE));
     printf("%c\n", (char)((header.subChunk2ID & 0x000000FF)));
 
     printf("Subchunk 2 Size: %d\n\n", header.subChunk2Size);
@@ -113,7 +127,6 @@ int wav_load(const char* filename, int16_t* dest){
     //     fread((*dest)+i, sizeof(int16_t), 1, myWAV);
     // }
 
-
     fclose(myWAV);
 
     return 1;
@@ -123,19 +136,19 @@ int wav_load(const char* filename, int16_t* dest){
 // Create/write a WAV file from buffer
 void wav_save(const char* fname, int16_t* src, size_t len){
     WAVHeader myHeader;
-    myHeader.chunkID = 0x52494646;
-    myHeader.chunkSize = 36 + len;
-    myHeader.format = 0x57415645;
-    myHeader.subChunk1ID = 0x666d7420;
-    myHeader.subChunk1Size = 16;
-    myHeader.audioFormat = 1;
-    myHeader.numChannels = 1;
-    myHeader.sampleRate = 8000;
-    myHeader.byteRate = 8000 * 1 * 16 / 8;
-    myHeader.blockAlign = 1 * 16 / 8;
-    myHeader.bitsPerSample = 16;
-    myHeader.subChunk2ID = 0x64617461;
-    myHeader.subChunk2Size = len * 1 * 16 / 8;
+    myHeader.chunkID = CHUNK_ID;
+    myHeader.chunkSize = CHUNK_SIZE1_OFFSET + len;
+    myHeader.format = FORMAT;
+    myHeader.subChunk1ID = SUB_CHUNK1_ID;
+    myHeader.subChunk1Size = SUB_CHUNK1_SIZE;
+    myHeader.audioFormat = AUDIO_FORMAT;
+    myHeader.numChannels = NUM_CHANNEL;
+    myHeader.sampleRate = SAMPLE_RATE;
+    myHeader.blockAlign = NUM_CHANNEL * BITS_PER_SAMPLE / BITS_PER_BYTE;
+    myHeader.bitsPerSample = BITS_PER_SAMPLE;
+    myHeader.byteRate = SAMPLE_RATE * NUM_CHANNEL * BITS_PER_SAMPLE / BITS_PER_BYTE;
+    myHeader.subChunk2ID = SUB_CHUNK2_ID;
+    myHeader.subChunk2Size = len * NUM_CHANNEL * SAMPLE_RATE / BITS_PER_BYTE;
 
     handle_endian(&myHeader);
     // print_header(myHeader);

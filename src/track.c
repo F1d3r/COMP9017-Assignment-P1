@@ -6,6 +6,8 @@
 #include "../include/list_op.h"
 #include "../include/child_parent.h"
 
+#define INT_BUFFER_LEN 20
+
 
 Track* tr_init(){
     Track* myTrack = malloc(sizeof(Track));
@@ -463,8 +465,8 @@ char* tr_identify(Track* target, Track* ad){
     char* result = malloc(1);
     *result = '\0';
 
-    char buff1[20];
-    char buff2[20];
+    char buff1[INT_BUFFER_LEN];
+    char buff2[INT_BUFFER_LEN];
 
     // Convert target and ad to array.
     int16_t* target_data = NULL;
